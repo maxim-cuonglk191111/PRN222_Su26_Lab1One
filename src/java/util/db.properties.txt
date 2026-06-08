@@ -1,5 +1,0 @@
-// This is template for db.properties, copy it and make it db.properties
-db.driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
-db.url=jdbc:sqlserver://localhost:1433;databaseName=your_database_name;encrypt=true;trustServerCertificate=true;
-db.username=your_sql_server_username
-db.password=your_sql_server_password
