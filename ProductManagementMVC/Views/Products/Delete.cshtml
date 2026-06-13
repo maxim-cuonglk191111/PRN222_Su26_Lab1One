@@ -1,0 +1,34 @@
+@model BusinessObjects.Models.Product
+@{
+    ViewData["Title"] = "Delete Product";
+}
+
+<h2 class="text-danger">Delete Product</h2>
+<hr />
+
+<div class="alert alert-warning">
+    <strong>Warning:</strong> This action cannot be undone.
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Product Name</dt>
+    <dd class="col-sm-9">@Model.ProductName</dd>
+
+    <dt class="col-sm-3">Category</dt>
+    <dd class="col-sm-9">@Model.Category?.CategoryName</dd>
+
+    <dt class="col-sm-3">Units in Stock</dt>
+    <dd class="col-sm-9">@(Model.UnitsInStock?.ToString() ?? "—")</dd>
+
+    <dt class="col-sm-3">Unit Price</dt>
+    <dd class="col-sm-9">@(Model.UnitPrice.HasValue ? Model.UnitPrice.Value.ToString("C") : "—")</dd>
+</dl>
+
+<form asp-action="Delete">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ProductID" />
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-danger">Confirm Delete</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>

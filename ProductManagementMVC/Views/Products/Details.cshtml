@@ -1,0 +1,42 @@
+@model BusinessObjects.Models.Product
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<h2>Product Details</h2>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">Product ID</dt>
+    <dd class="col-sm-9">@Model.ProductID</dd>
+
+    <dt class="col-sm-3">Product Name</dt>
+    <dd class="col-sm-9">@Model.ProductName</dd>
+
+    <dt class="col-sm-3">Category</dt>
+    <dd class="col-sm-9">@Model.Category?.CategoryName</dd>
+
+    <dt class="col-sm-3">Units in Stock</dt>
+    <dd class="col-sm-9">
+        @if (Model.UnitsInStock.HasValue)
+        {
+            <span class="badge @(Model.UnitsInStock < 10 ? "bg-danger" : "bg-success")">
+                @Model.UnitsInStock
+            </span>
+        }
+        else
+        {
+            <span class="text-muted">Not specified</span>
+        }
+    </dd>
+
+    <dt class="col-sm-3">Unit Price</dt>
+    <dd class="col-sm-9">
+        @(Model.UnitPrice.HasValue ? Model.UnitPrice.Value.ToString("C") : "Not specified")
+    </dd>
+</dl>
+
+<div class="d-flex gap-2">
+    <a asp-action="Edit" asp-route-id="@Model.ProductID" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

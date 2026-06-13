@@ -1,0 +1,74 @@
+@model BusinessObjects.Models.Product
+@{
+    ViewData["Title"] = "Edit Product";
+    bool isAdmin = ViewBag.IsAdmin ?? false;
+}
+
+<h2>Edit Product</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <input type="hidden" asp-for="ProductID" />
+
+            <div class="mb-3">
+                <label asp-for="ProductName" class="form-label"></label>
+                @if (isAdmin)
+                {
+                    <input asp-for="ProductName" class="form-control" />
+                }
+                else
+                {
+                    <input asp-for="ProductName" class="form-control" readonly="readonly" />
+                }
+                <span asp-validation-for="ProductName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CategoryID" class="form-label">Category</label>
+                @if (isAdmin)
+                {
+                    <select asp-for="CategoryID" asp-items="ViewBag.Categories" class="form-select">
+                        <option value="">-- Select Category --</option>
+                    </select>
+                }
+                else
+                {
+                    <input class="form-control" value="@Model.Category?.CategoryName" readonly="readonly" />
+                    <input type="hidden" asp-for="CategoryID" />
+                }
+                <span asp-validation-for="CategoryID" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="UnitsInStock" class="form-label"></label>
+                @if (isAdmin)
+                {
+                    <input asp-for="UnitsInStock" class="form-control" type="number" min="0" />
+                }
+                else
+                {
+                    <input asp-for="UnitsInStock" class="form-control" type="number" min="0" readonly="readonly" />
+                }
+                <span asp-validation-for="UnitsInStock" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="UnitPrice" class="form-label"></label>
+                <input asp-for="UnitPrice" class="form-control" type="number" min="0.01" step="0.01" />
+                <span asp-validation-for="UnitPrice" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
