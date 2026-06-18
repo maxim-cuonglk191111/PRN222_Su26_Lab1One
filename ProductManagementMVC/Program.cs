@@ -6,8 +6,8 @@ using Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("MyStoreDB")
-    ?? throw new InvalidOperationException("Connection string 'MyStoreDB' not found.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<MyStoreContext>(options =>
     options.UseSqlServer(connectionString));
 
