@@ -15,7 +15,7 @@ public class MyStoreContext : DbContext
     {
         // All tables live in the [store] schema – keeps multiple projects
         // isolated in the shared MonsterASP.NET database instance.
-        modelBuilder.HasDefaultSchema("store");
+        modelBuilder.HasDefaultSchema("lab1");
 
         modelBuilder.Entity<AccountMember>(e =>
         {

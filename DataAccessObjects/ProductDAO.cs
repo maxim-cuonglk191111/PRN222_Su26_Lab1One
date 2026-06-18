@@ -13,43 +13,43 @@ public class ProductDAO
         _context = context;
     }
 
-    public List<Product> GetAll()
-        => _context.Products.AsNoTracking()
+    public async Task<List<Product>> GetAllAsync()
+        => await _context.Products.AsNoTracking()
             .Include(p => p.Category)
             .OrderBy(p => p.ProductName)
-            .ToList();
+            .ToListAsync();
 
-    public Product? GetById(int id)
-        => _context.Products.AsNoTracking()
+    public async Task<Product?> GetByIdAsync(int id)
+        => await _context.Products.AsNoTracking()
             .Include(p => p.Category)
-            .FirstOrDefault(p => p.ProductID == id);
+            .FirstOrDefaultAsync(p => p.ProductID == id);
 
-    public void Add(Product product)
+    public async Task AddAsync(Product product)
     {
         _context.Products.Add(product);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public void Update(Product product)
+    public async Task UpdateAsync(Product product)
     {
         _context.Products.Update(product);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public void Delete(int id)
+    public async Task DeleteAsync(int id)
     {
-        var product = _context.Products.Find(id);
+        var product = await _context.Products.FindAsync(id);
         if (product != null)
         {
             _context.Products.Remove(product);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 
-    public List<Product> Search(string keyword)
-        => _context.Products.AsNoTracking()
+    public async Task<List<Product>> SearchAsync(string keyword)
+        => await _context.Products.AsNoTracking()
             .Include(p => p.Category)
             .Where(p => p.ProductName.Contains(keyword))
             .OrderBy(p => p.ProductName)
-            .ToList();
+            .ToListAsync();
 }

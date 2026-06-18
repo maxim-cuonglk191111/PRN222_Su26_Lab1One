@@ -1,9 +1,6 @@
 using BusinessObjects.Models;
-
 namespace Repositories;
-
-public interface IAccountRepository
-{
-    AccountMember? GetByEmail(string email);
-    AccountMember? GetById(string memberId);
+public interface IAccountRepository {
+    Task<AccountMember?> GetAccountByEmailAsync(string email);
+    Task<AccountMember?> GetAccountByIdAsync(string id);
 }

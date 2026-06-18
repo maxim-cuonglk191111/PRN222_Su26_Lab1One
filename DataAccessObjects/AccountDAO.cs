@@ -13,11 +13,11 @@ public class AccountDAO
         _context = context;
     }
 
-    public AccountMember? GetByEmail(string email)
-        => _context.AccountMembers.AsNoTracking()
-            .FirstOrDefault(a => a.EmailAddress == email);
+    public async Task<AccountMember?> GetAccountByEmailAsync(string email)
+        => await _context.AccountMembers.AsNoTracking()
+            .FirstOrDefaultAsync(a => a.EmailAddress == email);
 
-    public AccountMember? GetById(string memberId)
-        => _context.AccountMembers.AsNoTracking()
-            .FirstOrDefault(a => a.MemberID == memberId);
+    public async Task<AccountMember?> GetAccountByIdAsync(string id)
+        => await _context.AccountMembers.AsNoTracking()
+            .FirstOrDefaultAsync(a => a.MemberID == id);
 }

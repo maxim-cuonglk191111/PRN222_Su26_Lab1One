@@ -1,0 +1,1 @@
+Automating bulk namespace updates for C# class libraries using regex scripts can cause unexpected compilation failures if file-scoped namespaces ('namespace X;') are improperly swapped with 'using' statements, requiring a second pass to correct syntax ordering.

@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 
@@ -20,12 +22,20 @@ public class AccountController : Controller
         return View();
     }
 
+    private string HashPassword(string password)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
+        return Convert.ToHexString(bytes).ToLower();
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Login(string email, string password)
+    public async Task<IActionResult> Login(string email, string password)
     {
-        var member = _accountService.Authenticate(email, password);
-        if (member == null)
+        var member = await _accountService.GetAccountByEmailAsync(email);
+        
+        // Allow both plain text (Lab 2) and SHA256 (Lab 1) for compatibility during sync
+        if (member == null || (member.MemberPassword != password && member.MemberPassword != HashPassword(password)))
         {
             ViewBag.Error = "Invalid username or password.";
             return View();

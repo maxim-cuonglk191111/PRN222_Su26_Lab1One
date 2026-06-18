@@ -25,14 +25,14 @@ public class ProductsController : Controller
         return null;
     }
 
-    public IActionResult Index(string? search)
+    public async Task<IActionResult> Index(string? search)
     {
         var redirect = RequireAuth();
         if (redirect != null) return redirect;
 
         var products = string.IsNullOrWhiteSpace(search)
-            ? _productService.GetAll()
-            : _productService.Search(search);
+            ? await _productService.GetAllAsync()
+            : await _productService.SearchAsync(search);
 
         ViewBag.Search = search;
         ViewBag.IsAdmin = IsAdmin();
@@ -40,30 +40,30 @@ public class ProductsController : Controller
         return View(products);
     }
 
-    public IActionResult Details(int id)
+    public async Task<IActionResult> Details(int id)
     {
         var redirect = RequireAuth();
         if (redirect != null) return redirect;
 
-        var product = _productService.GetById(id);
+        var product = await _productService.GetByIdAsync(id);
         if (product == null) return NotFound();
         return View(product);
     }
 
     [HttpGet]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
         var redirect = RequireAuth();
         if (redirect != null) return redirect;
         if (!IsAdmin()) return Forbid();
 
-        ViewBag.Categories = new SelectList(_categoryService.GetAll(), "CategoryID", "CategoryName");
+        ViewBag.Categories = new SelectList(await _categoryService.GetAllAsync(), "CategoryID", "CategoryName");
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(Product product)
+    public async Task<IActionResult> Create(Product product)
     {
         var redirect = RequireAuth();
         if (redirect != null) return redirect;
@@ -71,31 +71,31 @@ public class ProductsController : Controller
 
         if (ModelState.IsValid)
         {
-            _productService.Add(product);
+            await _productService.AddAsync(product);
             return RedirectToAction(nameof(Index));
         }
 
-        ViewBag.Categories = new SelectList(_categoryService.GetAll(), "CategoryID", "CategoryName", product.CategoryID);
+        ViewBag.Categories = new SelectList(await _categoryService.GetAllAsync(), "CategoryID", "CategoryName", product.CategoryID);
         return View(product);
     }
 
     [HttpGet]
-    public IActionResult Edit(int id)
+    public async Task<IActionResult> Edit(int id)
     {
         var redirect = RequireAuth();
         if (redirect != null) return redirect;
 
-        var product = _productService.GetById(id);
+        var product = await _productService.GetByIdAsync(id);
         if (product == null) return NotFound();
 
-        ViewBag.Categories = new SelectList(_categoryService.GetAll(), "CategoryID", "CategoryName", product.CategoryID);
+        ViewBag.Categories = new SelectList(await _categoryService.GetAllAsync(), "CategoryID", "CategoryName", product.CategoryID);
         ViewBag.IsAdmin = IsAdmin();
         return View(product);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Edit(int id, Product product)
+    public async Task<IActionResult> Edit(int id, Product product)
     {
         var redirect = RequireAuth();
         if (redirect != null) return redirect;
@@ -104,36 +104,36 @@ public class ProductsController : Controller
 
         if (ModelState.IsValid)
         {
-            _productService.Update(product);
+            await _productService.UpdateAsync(product);
             return RedirectToAction(nameof(Index));
         }
 
-        ViewBag.Categories = new SelectList(_categoryService.GetAll(), "CategoryID", "CategoryName", product.CategoryID);
+        ViewBag.Categories = new SelectList(await _categoryService.GetAllAsync(), "CategoryID", "CategoryName", product.CategoryID);
         ViewBag.IsAdmin = IsAdmin();
         return View(product);
     }
 
     [HttpGet]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         var redirect = RequireAuth();
         if (redirect != null) return redirect;
         if (!IsAdmin()) return Forbid();
 
-        var product = _productService.GetById(id);
+        var product = await _productService.GetByIdAsync(id);
         if (product == null) return NotFound();
         return View(product);
     }
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
-    public IActionResult DeleteConfirmed(int id)
+    public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var redirect = RequireAuth();
         if (redirect != null) return redirect;
         if (!IsAdmin()) return Forbid();
 
-        _productService.Delete(id);
+        await _productService.DeleteAsync(id);
         return RedirectToAction(nameof(Index));
     }
 }

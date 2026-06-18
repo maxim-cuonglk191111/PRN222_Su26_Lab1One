@@ -5,7 +5,7 @@
 -- Platform : MonsterASP.NET  –  SQL Server 2025
 -- ============================================================
 -- Design notes
---   • All objects live in the [store] schema so multiple projects
+--   • All objects live in the [lab1] schema so multiple projects
 --     can coexist in a single MonsterASP.NET 1 GB database without
 --     name collisions or DROP/CREATE side-effects on other projects.
 --   • Every statement is idempotent: safe to run repeatedly.
@@ -27,8 +27,8 @@
 -- SECTION 1  –  SCHEMA
 -- ============================================================
 
-IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE [name] = N'store')
-    EXEC(N'CREATE SCHEMA [store] AUTHORIZATION [dbo]');
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE [name] = N'lab1')
+    EXEC(N'CREATE SCHEMA [lab1] AUTHORIZATION [dbo]');
 GO
 
 
@@ -43,8 +43,8 @@ GO
 --      authenticates by email, not by MemberID.
 --      MemberRole domain: 1 = Admin, 2 = Staff.
 -- ----------------------------------------------------------
-IF OBJECT_ID(N'[store].[AccountMember]', N'U') IS NULL
-CREATE TABLE [store].[AccountMember]
+IF OBJECT_ID(N'[lab1].[AccountMember]', N'U') IS NULL
+CREATE TABLE [lab1].[AccountMember]
 (
     [MemberID]       NVARCHAR(20)   NOT NULL,
     [MemberPassword] NVARCHAR(80)   NOT NULL,   -- SHA-256 hex, 64 chars
@@ -69,8 +69,8 @@ GO
 --      Short taxonomy labels (max 15 chars per domain model).
 --      Unique constraint on CategoryName prevents duplicates.
 -- ----------------------------------------------------------
-IF OBJECT_ID(N'[store].[Categories]', N'U') IS NULL
-CREATE TABLE [store].[Categories]
+IF OBJECT_ID(N'[lab1].[Categories]', N'U') IS NULL
+CREATE TABLE [lab1].[Categories]
 (
     [CategoryID]   INT          IDENTITY(1,1)  NOT NULL,
     [CategoryName] NVARCHAR(15)                NOT NULL,
@@ -92,8 +92,8 @@ GO
 --      ON DELETE CASCADE propagates category removal to products,
 --      preventing orphaned rows (PRD data-integrity requirement).
 -- ----------------------------------------------------------
-IF OBJECT_ID(N'[store].[Products]', N'U') IS NULL
-CREATE TABLE [store].[Products]
+IF OBJECT_ID(N'[lab1].[Products]', N'U') IS NULL
+CREATE TABLE [lab1].[Products]
 (
     [ProductID]    INT          IDENTITY(1,1)  NOT NULL,
     [ProductName]  NVARCHAR(40)                NOT NULL,
@@ -106,7 +106,7 @@ CREATE TABLE [store].[Products]
 
     CONSTRAINT [FK_Products_Categories]
         FOREIGN KEY ([CategoryID])
-        REFERENCES [store].[Categories] ([CategoryID])
+        REFERENCES [lab1].[Categories] ([CategoryID])
         ON DELETE CASCADE,
 
     CONSTRAINT [CHK_Products_UnitsInStock]
@@ -126,20 +126,20 @@ GO
 IF NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE [name] = N'IX_AccountMember_Email'
-      AND [object_id] = OBJECT_ID(N'[store].[AccountMember]')
+      AND [object_id] = OBJECT_ID(N'[lab1].[AccountMember]')
 )
     CREATE NONCLUSTERED INDEX [IX_AccountMember_Email]
-        ON [store].[AccountMember] ([EmailAddress]);
+        ON [lab1].[AccountMember] ([EmailAddress]);
 GO
 
 -- Products list + JOIN: avoids key lookup for common columns
 IF NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE [name] = N'IX_Products_CategoryID'
-      AND [object_id] = OBJECT_ID(N'[store].[Products]')
+      AND [object_id] = OBJECT_ID(N'[lab1].[Products]')
 )
     CREATE NONCLUSTERED INDEX [IX_Products_CategoryID]
-        ON [store].[Products] ([CategoryID])
+        ON [lab1].[Products] ([CategoryID])
         INCLUDE ([ProductName], [UnitsInStock], [UnitPrice]);
 GO
 
@@ -147,10 +147,10 @@ GO
 IF NOT EXISTS (
     SELECT 1 FROM sys.indexes
     WHERE [name] = N'IX_Products_ProductName'
-      AND [object_id] = OBJECT_ID(N'[store].[Products]')
+      AND [object_id] = OBJECT_ID(N'[lab1].[Products]')
 )
     CREATE NONCLUSTERED INDEX [IX_Products_ProductName]
-        ON [store].[Products] ([ProductName]);
+        ON [lab1].[Products] ([ProductName]);
 GO
 
 
@@ -168,8 +168,8 @@ GO
 --                2));
 
 -- 4.1  Account Members
-IF NOT EXISTS (SELECT 1 FROM [store].[AccountMember] WHERE [MemberID] = N'ADMIN001')
-    INSERT INTO [store].[AccountMember]
+IF NOT EXISTS (SELECT 1 FROM [lab1].[AccountMember] WHERE [MemberID] = N'ADMIN001')
+    INSERT INTO [lab1].[AccountMember]
         ([MemberID], [MemberPassword], [FullName], [EmailAddress], [MemberRole])
     VALUES (
         N'ADMIN001',
@@ -179,8 +179,8 @@ IF NOT EXISTS (SELECT 1 FROM [store].[AccountMember] WHERE [MemberID] = N'ADMIN0
         1
     );
 
-IF NOT EXISTS (SELECT 1 FROM [store].[AccountMember] WHERE [MemberID] = N'STAFF001')
-    INSERT INTO [store].[AccountMember]
+IF NOT EXISTS (SELECT 1 FROM [lab1].[AccountMember] WHERE [MemberID] = N'STAFF001')
+    INSERT INTO [lab1].[AccountMember]
         ([MemberID], [MemberPassword], [FullName], [EmailAddress], [MemberRole])
     VALUES (
         N'STAFF001',
@@ -200,11 +200,11 @@ INSERT INTO @cats VALUES
     (N'Grains'),
     (N'Seafood');
 
-INSERT INTO [store].[Categories] ([CategoryName])
+INSERT INTO [lab1].[Categories] ([CategoryName])
 SELECT c.[Name]
 FROM   @cats c
 WHERE  NOT EXISTS (
-    SELECT 1 FROM [store].[Categories] x WHERE x.[CategoryName] = c.[Name]
+    SELECT 1 FROM [lab1].[Categories] x WHERE x.[CategoryName] = c.[Name]
 );
 GO
 
@@ -228,16 +228,16 @@ INSERT INTO @products VALUES
     (N'Ikura',             N'Seafood',    31, 31.00),
     (N'Inlagd Sill',       N'Seafood',   112, 19.00);
 
-INSERT INTO [store].[Products] ([ProductName], [CategoryID], [UnitsInStock], [UnitPrice])
+INSERT INTO [lab1].[Products] ([ProductName], [CategoryID], [UnitsInStock], [UnitPrice])
 SELECT
     p.[ProductName],
     c.[CategoryID],
     p.[UnitsInStock],
     p.[UnitPrice]
 FROM   @products p
-JOIN   [store].[Categories] c ON c.[CategoryName] = p.[CategoryName]
+JOIN   [lab1].[Categories] c ON c.[CategoryName] = p.[CategoryName]
 WHERE  NOT EXISTS (
-    SELECT 1 FROM [store].[Products] x WHERE x.[ProductName] = p.[ProductName]
+    SELECT 1 FROM [lab1].[Products] x WHERE x.[ProductName] = p.[ProductName]
 );
 GO
 
@@ -249,7 +249,7 @@ SELECT
     [Table]  = N'AccountMember',
     [Rows]   = COUNT(*),
     [Sample] = MAX([FullName])
-FROM [store].[AccountMember]
+FROM [lab1].[AccountMember]
 
 UNION ALL
 
@@ -257,7 +257,7 @@ SELECT
     N'Categories',
     COUNT(*),
     MAX([CategoryName])
-FROM [store].[Categories]
+FROM [lab1].[Categories]
 
 UNION ALL
 
@@ -265,5 +265,5 @@ SELECT
     N'Products',
     COUNT(*),
     MAX([ProductName])
-FROM [store].[Products];
+FROM [lab1].[Products];
 GO
